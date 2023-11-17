@@ -1,19 +1,22 @@
 import gym
 import rware
-env = gym.make("rware-tiny-2ag-v1")
+from tqdm import tqdm
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
 
-# Enviroment variables can be accessed 
+agent_count = 1
+env = gym.make(f"rware-tiny-{agent_count}ag-v1")
 
 
-obs = env.reset()  # a tuple of observations
+obs1 = env.observation_space.sample()  # the observation space can be sampled
+print(obs1[0].shape ) 
+print(obs1[0] ) 
 
-actions = env.action_space.sample()  # the action space can be sampled
-print(actions)  # (1, 0)
-n_obs, reward, done, info = env.step(actions)
+obs2 = env.reset()  # a tuple of observations
+print(obs2[0].shape ) 
+print(obs2[0]) 
 
-print(done)    # [False, False]
-print(reward)  # [0.0, 0.0]
+print(env.grid)
 
 env.render()
-
-env.close()
