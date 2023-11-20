@@ -1,25 +1,115 @@
 import gym
 from gym import spaces
 import numpy as np
+import random
+import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
+
+# 1) observation_spaces - change the argument values
+# 2) may need to change the action space to add the ordinal directions
+# 3) modify goal position
 
 class WarehouseEnvironment(gym.Env):
-    def __init__(self):
-        super(WarehouseEnvironment, self).__init__()
-        # Defining the warehouse parametesr
-        self.num_items = num_items
-        self.num_robots = num_robots 
-        self.max_steps = 100
+    def __init__(self, grid_size, num_materials, num_obstacles):
+        super(WarehouseEnvironment, self).__init__() # Here we are calling itself, Basically calling the constructor of the parent class - WarehouseEnvironment and initializing the object using the constructor of the parent class
+        self.grid_size = grid_size
+        self.num_materials = num_materials
+        self.num_obstacles = num_obstacles
+        self.action_space = spaces.Discrete(4) # Currently only 4 directions are allowed - up, right, down and left
+        self.observation_space = spaces.MultiDiscrete([
+            grid_size, grid_size,  # Robot position
+            grid_size, grid_size,  # Goal position
+            grid_size, grid_size,  # Material positions
+        ])
+        self.robot_position = (0,0)
+        self.goal_position = (grid_size-1, grid_size-1)
+        self.material_positions = self.generate_random_positions(num_materials)
+        self.obstacle_positions = self.generate_random_positions(num_obstacles)
 
-        self.action_space = spaces.Discrete(5)
-        #self.observation_space
-        self.warehouse_observation_space = spaces.Box(low=-2.0, high=2.0, shape=(10,10), dtype=np.float32)
-        self.warehouse_state = np.zeros(self.num_items+self.num_robots)
-        self.reset()
-
+    def generate_random_positions(self, num_positions):
+        positions = set() # positions of materials and obstacles which are generated randomly so that we dont have to generate different environments for every new version
+        while len(positions) < num_positions:
+            position = (random.randint(0, self.grid_size-1), random.randint(0, self.grid_size-1))
+            if position!=self.robot_position and position!=self.goal_position:
+                positions.add(position) # So, the logic is that the random material or obstacle positions can be anything in the grid except for the robot location and also the goal locations. If not then add to the sets
+        return list(positions)
+    
     def reset(self):
-        self.warehouse_state = np.zeros(self.num_items+self.num_robots)
-        self.current_step = 0
-        return self.warehouse_state
+        self.robot_position = (0,0)
+        return self.get_state()
+    
+    def get_state(self):
+        # unpacking the elements of robot_positin, goal_position and num_material_position iterables into a single tuple, finally converting it to array
+        return np.array([self.robot_position[0], self.robot_position[1], self.goal_position[0], self.goal_position[1],*sum(self.material_positions, ())])  # Flatten the list of material positions
+
+    def is_valid_move(self, position):
+        # Checking if the current positions x and y after taking action is between 0 to largest possible integer and position also should not be colliding to obstacles 
+        return 0 <= position[0] < self.grid_size and 0<=position[1]<self.grid_size and position not in self.obstacle_positions
+    
+    def take_action(self, action):
+        new_position = self.robot_position
+        if action == 0: #Go up
+            new_position=(self.robot_position[0]-1, self.robot_position[1])
+        elif action == 1: #Go down
+            new_position=(self.robot_position[0]+1, self.robot_position[1])
+        elif action == 2: #Go left
+            new_position=(self.robot_position[0], self.robot_position[1]-1)
+        elif action ==3: #Go right
+            new_position=(self.robot_position[0], self.robot_position[1]+1)
+        if self.is_valid_move(new_position):
+            self.robot_position = new_position
+
+    def is_goal_reached(self):
+        return self.robot_position == self.goal_position
+    
+    def collect_material(self):
+        if self.robot_position in self.material_positions:
+            self.material_positions.remove(self.robot_position)
+            return True
+        return False
     
     def step(self, action):
-        reward = 
+        self.take_action(action)
+        if self.collect_material():
+            reward = 1
+        else:
+            reward = 0
+        done = self.is_goal_reached()
+        return self.get_state(), reward, done, {} #empty dictionary in case we need to return additional information also called as info....
+    
+    def render(self, mode): # rendering environment into human readable form
+        if mode == 'human':
+            for i in range(self.grid_size):
+                for j in range(self.grid_size):
+                    position = (i,j)
+                    if position == self.robot_position:
+                        print('R', end=' ')
+                    elif position == self.goal_position:
+                        print('G', end=' ')
+                    elif position in self.material_positions:
+                        print('M', end=' ')
+                    elif position in self.obstacle_positions:
+                        print('O', end=' ')
+                    else:
+                        print('-', end=' ')
+                print()
+        elif mode == 'matplotlib':
+            fig, ax = plt.subplots()
+            ax.set_xlim([0, self.grid_size])
+            ax.set_ylim([self.grid_size, 0])  # Reverse the y-axis
+
+            for obstacle_position in self.obstacle_positions:
+                obstacle_rect = Rectangle(obstacle_position, 1, 1, linewidth=1, edgecolor='black', facecolor='black')
+                ax.add_patch(obstacle_rect)
+
+            for material_position in self.material_positions:
+                material_rect = Rectangle(material_position, 1, 1, linewidth=1, edgecolor='green', facecolor='green')
+                ax.add_patch(material_rect)
+
+            goal_rect = Rectangle(self.goal_position, 1, 1, linewidth=1, edgecolor='red', facecolor='red')
+            ax.add_patch(goal_rect)
+
+            robot_rect = Rectangle(self.robot_position, 1, 1, linewidth=1, edgecolor='blue', facecolor='blue')
+            ax.add_patch(robot_rect)
+
+            plt.show()
