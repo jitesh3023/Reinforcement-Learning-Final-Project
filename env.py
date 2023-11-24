@@ -96,20 +96,28 @@ class WarehouseEnvironment(gym.Env):
         elif mode == 'matplotlib':
             fig, ax = plt.subplots()
             ax.set_xlim([0, self.grid_size])
-            ax.set_ylim([self.grid_size, 0])  # Reverse the y-axis
+            ax.set_ylim([0, self.grid_size])  
+
+            #ax.invert_xaxis()
+            ax.invert_yaxis()
 
             for obstacle_position in self.obstacle_positions:
-                obstacle_rect = Rectangle(obstacle_position, 1, 1, linewidth=1, edgecolor='black', facecolor='black')
+                obstacle_rect = Rectangle((obstacle_position[1], obstacle_position[0]), 1, 1, linewidth=1, edgecolor='black', facecolor='black')
                 ax.add_patch(obstacle_rect)
 
             for material_position in self.material_positions:
-                material_rect = Rectangle(material_position, 1, 1, linewidth=1, edgecolor='green', facecolor='green')
+                material_rect = Rectangle((material_position[1], material_position[0]), 1, 1, linewidth=1, edgecolor='green', facecolor='green')
                 ax.add_patch(material_rect)
 
-            goal_rect = Rectangle(self.goal_position, 1, 1, linewidth=1, edgecolor='red', facecolor='red')
+            goal_rect = Rectangle((self.goal_position[1], self.goal_position[0]), 1, 1, linewidth=1, edgecolor='red', facecolor='red')
             ax.add_patch(goal_rect)
 
-            robot_rect = Rectangle(self.robot_position, 1, 1, linewidth=1, edgecolor='blue', facecolor='blue')
+            robot_rect = Rectangle((self.robot_position[1], self.robot_position[0]), 1, 1, linewidth=1, edgecolor='blue', facecolor='blue')
             ax.add_patch(robot_rect)
+
+            # Adding grid for better visualization
+            ax.set_xticks(np.arange(0,self.grid_size+1, 1))
+            ax.set_yticks(np.arange(0,self.grid_size+1, 1))
+            ax.grid(which='both',color='black', linestyle='-',linewidth=0.7)
 
             plt.show()
