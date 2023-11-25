@@ -4,10 +4,16 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
+from gym.envs.registration import register
 
 # 1) observation_spaces - change the argument values
 # 2) may need to change the action space to add the ordinal directions
 # 3) modify goal position
+
+
+def register_env():
+    register(id="WarehouseEnv-v0", entry_point="env:WarehouseEnvironment", max_episode_steps=1000)
+    
 
 class WarehouseEnvironment(gym.Env):
     def __init__(self, grid_size, num_materials, num_obstacles):
@@ -74,6 +80,10 @@ class WarehouseEnvironment(gym.Env):
             reward = 1
         else:
             reward = 0
+
+        # if self.is_goal_reached():
+        #     reward = 2
+
         done = self.is_goal_reached()
         return self.get_state(), reward, done, {} #empty dictionary in case we need to return additional information also called as info....
     

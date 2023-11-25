@@ -4,9 +4,11 @@ import env
 #first-visit on-policy MC
 def monte_carlo(env, num_episodes, gamma=0.9):
     Q = np.zeros((np.prod(env.observation_space.nvec), env.action_space.n))
+    
     N = np.zeros((np.prod(env.observation_space.nvec), env.action_space.n))
     for episode in range(num_episodes):
         state=env.reset() # setting the robot/agent state to start
+        # print(state)
         episode_states=[]
         episode_actions = []
         episode_rewards=[]
@@ -19,6 +21,7 @@ def monte_carlo(env, num_episodes, gamma=0.9):
                 action = np.argmax(Q[state])
             
             next_state, reward, done,_ = env.step(action)
+            #print(next_state)
             episode_states.append(state)        
             episode_actions.append(action)
             episode_rewards.append(reward)

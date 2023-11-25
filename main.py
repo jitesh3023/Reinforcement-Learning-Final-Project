@@ -1,5 +1,6 @@
 import env
 import algorithms
+import gym
 
 
 # env = env.WarehouseEnvironment(grid_size=10, num_materials=5, num_obstacles=7)
@@ -23,9 +24,12 @@ def visualize_environment(environment):
 
 
 if __name__ == "__main__":
-    env = env.WarehouseEnvironment(grid_size=4, num_materials=2, num_obstacles=2)
+
+    env.register_env()
+    env = gym.make('WarehouseEnv-v0',grid_size=4, num_materials=2, num_obstacles=2)
+    
     visualize_environment(env)
-    MC = algorithms.monte_carlo(env, num_episodes=5)
+    MC = algorithms.monte_carlo(env, num_episodes=100)
     visualize_environment(env)
     print("Q-values after Monte Carlo:")
     print(MC)
