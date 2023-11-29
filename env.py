@@ -12,7 +12,7 @@ from gym.envs.registration import register
 
 
 def register_env():
-    register(id="WarehouseEnv-v0", entry_point="env:WarehouseEnvironment", max_episode_steps=1000)
+    register(id="WarehouseEnv-v0", entry_point="env:WarehouseEnvironment", max_episode_steps = 10000)
     
 
 class WarehouseEnvironment(gym.Env):
@@ -46,8 +46,8 @@ class WarehouseEnvironment(gym.Env):
     
     def get_state(self):
         # unpacking the elements of robot_positin, goal_position and num_material_position iterables into a single tuple, finally converting it to array
-        return np.array([self.robot_position[0], self.robot_position[1], self.goal_position[0], self.goal_position[1],*sum(self.material_positions, ())])  # Flatten the list of material positions
-
+        return self.robot_position
+    
     def is_valid_move(self, position):
         # Checking if the current positions x and y after taking action is between 0 to largest possible integer and position also should not be colliding to obstacles 
         return 0 <= position[0] < self.grid_size and 0<=position[1]<self.grid_size and position not in self.obstacle_positions
@@ -76,17 +76,11 @@ class WarehouseEnvironment(gym.Env):
     
     def step(self, action):
         self.take_action(action)
-        if self.collect_material():
+        if self.collect_material() or self.is_goal_reached():
             reward = 1
-
-        elif self.is_goal_reached():
-            reward = 4
         
         else:
             reward = 0
-
-        # if self.is_goal_reached():
-        #     reward = 2
 
         done = self.is_goal_reached()
         return self.get_state(), reward, done, {} #empty dictionary in case we need to return additional information also called as info....
