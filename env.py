@@ -78,6 +78,10 @@ class WarehouseEnvironment(gym.Env):
         self.take_action(action)
         if self.collect_material():
             reward = 1
+
+        elif self.is_goal_reached():
+            reward = 4
+        
         else:
             reward = 0
 

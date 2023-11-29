@@ -26,7 +26,7 @@ def visualize_environment(environment):
 if __name__ == "__main__":
 
     env.register_env()
-    env = gym.make('WarehouseEnv-v0',grid_size=4, num_materials=2, num_obstacles=2)
+    env = gym.make('WarehouseEnv-v0',grid_size=4, num_materials=0, num_obstacles=2)
     
     visualize_environment(env)
     MC = algorithms.monte_carlo(env, num_episodes=100)
