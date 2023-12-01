@@ -86,7 +86,7 @@ def q_learning(
             t_episode += 1
             action = get_policy(state)
             next_state, reward, done, _ = env.step(action)
-            # print(f"Episode: {episode}, State: {state}, Action: {action}, Done: {done}")
+            print(f"Episode: {episode}, State: {next_state}, Action: {action}, Done: {done}")
 
             Q[state][action] = Q[state][action] + step_size * (reward + gamma*np.max(Q[next_state][:]) - Q[state][action])
             state = next_state

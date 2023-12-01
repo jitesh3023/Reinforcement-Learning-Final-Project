@@ -20,13 +20,13 @@ import gym
 
 def visualize_environment(environment):
     env.render(mode='human')
-    env.render(mode='matplotlib')
+    # env.render(mode='matplotlib')
 
 
 if __name__ == "__main__":
 
     env.register_env()
-    env = gym.make('WarehouseEnv-v0',grid_size=4, num_materials=2, num_obstacles=2)
+    env = gym.make('WarehouseEnv-v0',grid_size=4, num_materials=2, num_obstacles=0)
     
     # visualize_environment(env)
     # MC = algorithms.monte_carlo(env, num_episodes=100)
@@ -36,8 +36,8 @@ if __name__ == "__main__":
 
 
     visualize_environment(env)
-    MC = algorithms.q_learning(env=env,num_episodes=100,gamma=0.9,epsilon=0.1,step_size=0.5)
+    MC = algorithms.q_learning(env=env,num_episodes=1000,gamma=0.9,epsilon=0.1,step_size=0.5)
     visualize_environment(env)
     print("Q-values after Monte Carlo:")
-    # print(MC)
+    print(MC)
 

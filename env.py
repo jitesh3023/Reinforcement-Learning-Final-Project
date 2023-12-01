@@ -35,6 +35,7 @@ class WarehouseEnvironment(gym.Env):
 
         self.total_goals = self.material_positions
         self.total_goals.append(self.goal_position)
+        self.goal_index = 0
         print(self.total_goals)
 
     def generate_random_positions(self, num_positions):
@@ -46,9 +47,11 @@ class WarehouseEnvironment(gym.Env):
         return list(positions)
     
     def reset(self):
-        self.robot_position = (0,0)
-        self.material_positions = self.original_material_poistions
-        self.goal_index = 0
+        if self.robot_position == self.total_goals[-1]:
+            self.robot_position = (0,0)
+            self.material_positions = self.original_material_poistions
+            self.goal_index = 0
+
         return self.get_state()
     
     def get_state(self):
@@ -81,7 +84,7 @@ class WarehouseEnvironment(gym.Env):
     
     def update_goal(self):
         self.goal_position = self.total_goals[self.goal_index]
-        print(f"Goal: {self.goal_index}")
+        # print(f"Current Goal: {self.goal_index}")
 
     def step(self, action):
 
@@ -91,7 +94,7 @@ class WarehouseEnvironment(gym.Env):
 
         if self.is_goal_reached():
             reward = 1
-            #print(f"Goal #{self.total_goals[self.goal_index]} Reached")
+            print(f"Goal #{self.total_goals[self.goal_index]} Reached")
             self.goal_index += 1
             # print(self.goal_index)
             # print(self.total_goals)
