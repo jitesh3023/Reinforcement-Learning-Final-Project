@@ -30,7 +30,12 @@ class WarehouseEnvironment(gym.Env):
         self.robot_position = (0,0)
         self.goal_position = (grid_size-1, grid_size-1)
         self.material_positions = self.generate_random_positions(num_materials)
+        self.original_material_poistions = self.material_positions
         self.obstacle_positions = self.generate_random_positions(num_obstacles)
+
+        self.total_goals = self.material_positions
+        self.total_goals.append(self.goal_position)
+        print(self.total_goals)
 
     def generate_random_positions(self, num_positions):
         positions = set() # positions of materials and obstacles which are generated randomly so that we dont have to generate different environments for every new version
@@ -42,6 +47,8 @@ class WarehouseEnvironment(gym.Env):
     
     def reset(self):
         self.robot_position = (0,0)
+        self.material_positions = self.original_material_poistions
+        self.goal_index = 0
         return self.get_state()
     
     def get_state(self):
@@ -71,18 +78,30 @@ class WarehouseEnvironment(gym.Env):
     def collect_material(self):
         if self.robot_position in self.material_positions:
             self.material_positions.remove(self.robot_position)
-            return True
-        return False
     
+    def update_goal(self):
+        self.goal_position = self.total_goals[self.goal_index]
+        print(f"Goal: {self.goal_index}")
+
     def step(self, action):
+
+        self.update_goal()
         self.take_action(action)
-        if self.collect_material() or self.is_goal_reached():
+        #self.collect_material()
+
+        if self.is_goal_reached():
             reward = 1
-        
+            #print(f"Goal #{self.total_goals[self.goal_index]} Reached")
+            self.goal_index += 1
+            # print(self.goal_index)
+            # print(self.total_goals)
+            
+
         else:
             reward = 0
 
         done = self.is_goal_reached()
+
         return self.get_state(), reward, done, {} #empty dictionary in case we need to return additional information also called as info....
     
     def render(self, mode): # rendering environment into human readable form

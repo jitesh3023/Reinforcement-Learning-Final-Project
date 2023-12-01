@@ -39,5 +39,5 @@ if __name__ == "__main__":
     MC = algorithms.q_learning(env=env,num_episodes=100,gamma=0.9,epsilon=0.1,step_size=0.5)
     visualize_environment(env)
     print("Q-values after Monte Carlo:")
-    print(MC)
+    # print(MC)
 
