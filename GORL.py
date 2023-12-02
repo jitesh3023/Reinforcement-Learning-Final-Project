@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
+import torch.nn.functional as F
 
 # Defining Neural Network
 class QNetwork(nn.Module): # Using pytorch's nn.Module we will define NN
@@ -9,16 +10,21 @@ class QNetwork(nn.Module): # Using pytorch's nn.Module we will define NN
         # Here input_size - represents the dimensionality or size of the input to the NN. In other words it correspondes to the number of features or variables that descrive the state of the environment
         # output_size - represets the number of neurons in the output layer of theNN. Like number of possible actiosn the agent can take in the envrionment
         super(QNetwork, self).__init__()
+        #print(input_size)
+        #print(output_size)
         self.fully_connected_layer_1 = nn.Linear(input_size, 64) #input_features - output-features
         self.fully_connected_layer_2 = nn.Linear(64, 32)
         self.fully_connected_layer_3 = nn.Linear(32, output_size)
     def forward(self, x): # doing forward propogation in the NN
-        x = torch.relu(self.fully_connected_layer_1(x)) # applyting activation function on FC1
-        x = torch.relu(self.fully_connected_layer_2(x))
+        #print(f"Input shape: {x.shape}")
+        x = F.relu(self.fully_connected_layer_1(x)) # applyting activation function on FC1
+        #print(f"After FC1 shape: {x.shape}")
+        x = F.relu(self.fully_connected_layer_2(x))
+        #print(f"After FC2 shape: {x.shape}")
         return self.fully_connected_layer_3(x)
 
 class DQNAgent:
-    def __init__(self, state_size, action_size, learning_rate=0.001, gamma=0.99, epsilon_start=1.0, epsilon_min=0.01, epsilon_decay=0.995):
+    def __init__(self, state_size, action_size, learning_rate=0.1, gamma=0.99, epsilon_start=1.0, epsilon_min=0.01, epsilon_decay=0.995):
         #state_size - represents the dimensionality of the state space in the RL env, basically defines number of features or variable that describe the current state
         #action_size - represents the size of action space
         #learning rate - controls hte step size during optimization
@@ -54,8 +60,9 @@ class DQNAgent:
         state = torch.FloatTensor(state).unsqueeze(0)
         next_state = torch.FloatTensor(next_state).unsqueeze(0)
         action = torch.tensor([action])
-        reward = torch.tensor([reward], dtype=torch.float32)
+        reward = torch.tensor([reward], dtype=torch.float32)   
         done = torch.tensor([done], dtype=torch.float32)
+        state = state.view(1, -1)
         q_value =self.q_network(state).gather(1, action.unsqueeze(1))
         with torch.no_grad():
             next_q_value = self.target_network(next_state).max(1)[0].unsqueeze(1)

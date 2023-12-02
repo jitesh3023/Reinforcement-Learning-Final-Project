@@ -22,7 +22,7 @@ class WarehouseEnvironment(gym.Env):
             grid_size, grid_size,  # Material positions
         ])
         self.robot_position = (0,0)
-        self.goal_position = (grid_size-1, grid_size-1)
+        self.goal_position = (1,0)
         self.material_positions = self.generate_random_positions(num_materials)
         self.obstacle_positions = self.generate_random_positions(num_obstacles)
 
@@ -69,12 +69,19 @@ class WarehouseEnvironment(gym.Env):
         return False
     
     def step(self, action):
+        self.previous_position = self.robot_position
         self.take_action(action)
-        if self.collect_material():
-            reward = 1
+        if self.robot_position == self.goal_position:
+            if len(self.material_positions) == 0:  
+                reward = 5
+            else:
+                reward=0
+                self.robot_position = self.previous_position
+        elif self.collect_material():
+            reward = 3
         else:
             reward = 0
-        done = self.is_goal_reached()
+        done = self.is_goal_reached() and len(self.material_positions) == 0
         return self.get_state(), reward, done, {} #empty dictionary in case we need to return additional information also called as info....
     
     def render(self, mode): # rendering environment into human readable form
