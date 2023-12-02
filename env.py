@@ -90,15 +90,12 @@ class WarehouseEnvironment(gym.Env):
 
         self.update_goal()
         self.take_action(action)
-        #self.collect_material()
+        # self.collect_material()
 
         if self.is_goal_reached():
             reward = 1
             print(f"Goal #{self.total_goals[self.goal_index]} Reached")
-            self.goal_index += 1
-            # print(self.goal_index)
-            # print(self.total_goals)
-            
+            self.goal_index += 1            
 
         else:
             reward = 0

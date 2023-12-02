@@ -2,6 +2,22 @@ import numpy as np
 import env
 from collections import defaultdict
 import matplotlib.pyplot as plt
+import random
+
+def argmax(arr) -> int:
+    """Argmax that breaks ties randomly
+
+    Takes in a list of values and returns the index of the item with the highest value, breaking ties randomly.
+
+    Note: np.argmax returns the first index that matches the maximum, so we define this method to use in EpsilonGreedy and UCB agents.
+    Args:
+        arr: sequence of values
+    """
+    max_value = np.max(arr)
+    max_indices = np.where(arr == max_value)[0]
+    max_ = random.choice(max_indices)
+    
+    return max_
 
 def monte_carlo(env, num_episodes, gamma=0.9):
     Q = defaultdict(lambda: np.zeros(env.action_space.n))
@@ -20,8 +36,9 @@ def monte_carlo(env, num_episodes, gamma=0.9):
             if np.random.rand() < 0.1:
                 action = np.random.choice(env.action_space.n)
             else:
-                action = np.argmax(Q[state])
+                action = argmax(Q[state])
             
+            print(action)
             next_state, reward, done, _ = env.step(action)
             
             episode_states.append(state)
@@ -30,6 +47,8 @@ def monte_carlo(env, num_episodes, gamma=0.9):
             state = next_state
             print(f"Episode: {episode}, State: {state}, Action: {action}, Done: {done}")
 
+        returns = []
+        lengths = []
         G = 0
         visited_states = set()
 
@@ -45,7 +64,7 @@ def monte_carlo(env, num_episodes, gamma=0.9):
                 N[state_t][action_t] += 1
                 Q[state_t][action_t] += (1 / N[state_t][action_t]) * (G - Q[state_t][action_t])
 
-    return Q
+    return Q, returns
 
 
 def q_learning(
@@ -70,11 +89,12 @@ def q_learning(
         if np.random.rand() < epsilon:
             action = np.random.choice(env.action_space.n)
         else:
-            action = np.argmax(Q[state])
+            action = argmax(Q[state])
 
         return action
     
     done = False
+    returns = []
     lengths = []
     state = env.reset()
 
@@ -91,6 +111,6 @@ def q_learning(
             Q[state][action] = Q[state][action] + step_size * (reward + gamma*np.max(Q[next_state][:]) - Q[state][action])
             state = next_state
         
-        lengths.append(t_episode)
+        returns.append(reward + gamma*np.max(Q[next_state][:]))
 
-    return Q
+    return Q, returns
