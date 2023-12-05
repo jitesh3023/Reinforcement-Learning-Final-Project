@@ -38,14 +38,14 @@ def monte_carlo(env, num_episodes, gamma=0.9):
             else:
                 action = argmax(Q[state])
             
-            print(action)
+            #print(action)
             next_state, reward, done, _ = env.step(action)
             
             episode_states.append(state)
             episode_actions.append(action)
             episode_rewards.append(reward)
             state = next_state
-            print(f"Episode: {episode}, State: {state}, Action: {action}, Done: {done}")
+            #print(f"Episode: {episode}, State: {state}, Action: {action}, Done: {done}")
 
         returns = []
         lengths = []
@@ -106,7 +106,7 @@ def q_learning(
             t_episode += 1
             action = get_policy(state)
             next_state, reward, done, _ = env.step(action)
-            print(f"Episode: {episode}, State: {next_state}, Action: {action}, Done: {done}")
+            #print(f"Episode: {episode}, State: {next_state}, Action: {action}, Done: {done}")
 
             Q[state][action] = Q[state][action] + step_size * (reward + gamma*np.max(Q[next_state][:]) - Q[state][action])
             state = next_state

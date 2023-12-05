@@ -42,7 +42,7 @@ class WarehouseEnvironment(gym.Env):
         positions = set() # positions of materials and obstacles which are generated randomly so that we dont have to generate different environments for every new version
         while len(positions) < num_positions:
             position = (random.randint(0, self.grid_size-1), random.randint(0, self.grid_size-1))
-            if position!=self.robot_position and position!=self.goal_position:
+            if position!=self.robot_position and position!=self.goal_position and position!=(self.goal_position[0]-1,self.goal_position[1]):
                 positions.add(position) # So, the logic is that the random material or obstacle positions can be anything in the grid except for the robot location and also the goal locations. If not then add to the sets
         return list(positions)
     
@@ -94,7 +94,7 @@ class WarehouseEnvironment(gym.Env):
 
         if self.is_goal_reached():
             reward = 1
-            print(f"Goal #{self.total_goals[self.goal_index]} Reached")
+            # print(f"Goal #{self.total_goals[self.goal_index]} Reached")
             self.goal_index += 1            
 
         else:
