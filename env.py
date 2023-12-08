@@ -40,7 +40,7 @@ class WarehouseEnvironment(gym.Env):
     
     def get_state(self):
         # unpacking the elements of robot_positin, goal_position and num_material_position iterables into a single tuple, finally converting it to array
-        return np.array([self.robot_position[0], self.robot_position[1], self.goal_position[0], self.goal_position[1],*sum(self.material_positions, ())])  # Flatten the list of material positions
+        return np.array([self.robot_position[0], self.robot_position[1], self.goal_position[0], self.goal_position[1],*sum(self.material_positions, ())]).flatten()  # Flatten the list of material positions
 
     def is_valid_move(self, position):
         # Checking if the current positions x and y after taking action is between 0 to largest possible integer and position also should not be colliding to obstacles 

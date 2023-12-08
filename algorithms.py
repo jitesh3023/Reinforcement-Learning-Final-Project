@@ -40,7 +40,7 @@ def monte_carlo(env, num_episodes, gamma=0.99):
             #print(env.action_space)
             #print(env.action_space.n)
             #print(env.action_space.sample())
-            #env.render(mode='matplotlib')  # Visualize the environment            
+            env.render(mode='matplotlib')  # Visualize the environment            
             next_state, reward, done, _ = env.step(action)
             
             #print(V[index_t])

@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 import torch.nn.functional as F
+from collections import deque
+import random
 
 # Defining Neural Network
 class QNetwork(nn.Module): # Using pytorch's nn.Module we will define NN
@@ -35,6 +37,7 @@ class DQNAgent:
         self.state_size = state_size
         self.action_size = action_size
         self.learning_rate = learning_rate
+        self.memory = deque(maxlen=2000)
         self.gamma = gamma
         self.epsilon = epsilon_start
         self.epsilon_min= epsilon_min
@@ -56,7 +59,16 @@ class DQNAgent:
                 q_values = self.q_network(state) # computing Q-values for each action
             return torch.argmax(q_values).item() # highest Q value selected for exploitation
         
-    def update_q_network(self, state, action, reward, next_state, done):
+    def remember(self, state, action, reward, next_state, done):
+        self.memory.append((state, action, reward, next_state, done))
+
+    def replay(self, batch_size):
+        if len(self.memory) < batch_size:
+            return
+    
+    # def update_q_network(self, state, action, reward, next_state, done):
+    minibatch = random.sample(self.memory, batch_size)
+    for state, action, reward, next_state, doin in minibatch:
         state = torch.FloatTensor(state).unsqueeze(0)
         next_state = torch.FloatTensor(next_state).unsqueeze(0)
         action = torch.tensor([action])
